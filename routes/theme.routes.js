@@ -3,7 +3,7 @@ const { check, param, query } = require('express-validator');
 
 const { themePost, themeDelete } = require('../controllers/theme.controller');
 const { validateFields } = require('../middlewares');
-const { themeExists, isEmpty, isValidPermission, isValidTheme } = require('../helpers/db-validators');
+const { themeExists, isEmpty, isValidPermission, isValidTheme, isValidUser } = require('../helpers/db-validators');
 
 const router = Router();
 
@@ -16,17 +16,20 @@ router.post('/', [
     .isArray().withMessage('Los permisos deben ser un array').bail()
     .custom(isEmpty).bail()
     .custom(isValidPermission),
-  check('role')
-    .exists({ values: 'falsy' }).withMessage('El rol es requerido').bail()
-    .equals('ADMIN_ROLE').withMessage('Este rol no puede crear temáticas'),
+  check('id')
+    .exists({ values: 'falsy' }).withMessage('El usuario es requerido').bail()
+    .isMongoId().withMessage('El id no es correcto').bail()
+    .custom(isValidUser),
   validateFields
 ], themePost);
 
-router.delete('/:theme', [
-  param('theme')
+router.delete('/:themeId', [
+  param('themeId')
     .custom(isValidTheme),
-  query('role')
-    .equals('ADMIN_ROLE').withMessage('Este rol no puede eliminar categorías'),
+  query('id')
+    .exists({ values: 'falsy' }).withMessage('El usuario es requerido').bail()
+    .isMongoId().withMessage('El id no es correcto').bail()
+    .custom(isValidUser),
   validateFields
 ], themeDelete)
 

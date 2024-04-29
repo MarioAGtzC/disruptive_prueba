@@ -53,13 +53,11 @@ const categoryExists = async(category = '') => {
   }
 }
 
-const isValidCategory = async (category = '') => {
-  const categoryValid = await Category.findOne({
-    category: { $regex: new RegExp(category, "i") }
-  });
+const isValidCategory = async (id = '') => {
+  const categoryValid = await Category.findById(id);
 
   if(!categoryValid) {
-    throw new Error(`La categoría: ${category} es incorrecta`)
+    throw new Error(`El id: ${id} es incorrecto`)
   }
 }
 
@@ -80,25 +78,40 @@ const isEmpty = async (array = []) => {
 }
 
 const isValidPermission = async (array = []) => {
-  array.forEach(async (permission) => {
+  const errors = [];
+
+  for (const permission of array) {
     const category = await Category.findOne({
       category: { $regex: new RegExp(permission, "i") }
     });
 
     if(!category) {
-      console.log(`Los permisos: ${permission} son incorrectos`);
-      // throw new Error('Los permisos no pueden estar vacio')
+      errors.push(permission);
     }
-  });
+  };
+
+  if(!errors) {
+    throw new Error(`Los permisos: ${errors.join(', ')} son incorrectos`);
+  }
 }
 
-const isValidTheme = async (theme = '') => {
-  const themeValid = await Theme.findOne({
-    theme: { $regex: new RegExp(theme, "i") }
-  });
+const isValidTheme = async (id = '') => {
+  const theme = await Theme.findById(id);
 
-  if(!themeValid) {
-    throw new Error(`La temática: ${category} es incorrecta`)
+  if(!theme) {
+    throw new Error(`El id: ${id} es incorrecta`)
+  }
+}
+
+const isValidUser = async (uploadBy = '') => {
+  const user = await User.findById(uploadBy);
+
+  if(!user) {
+    throw new Error(`El id: ${uploadBy} no existe`);
+  }
+  
+  if(user.role === 'USER_ROLE') {
+    throw new Error(`El usuario: ${user.username} no tiene estos permisos`);
   }
 }
 
@@ -113,4 +126,5 @@ module.exports = {
   isEmpty,
   isValidPermission,
   isValidTheme,
+  isValidUser
 }

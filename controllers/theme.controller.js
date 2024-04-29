@@ -10,20 +10,18 @@ const themePost = async(req, res = response) => {
 
   res.json({
     ok: true,
-    msg: 'post API theme from controller'
+    msg: `Temática: ${theme} creada`
   });
 }
 
 const themeDelete = async(req, res = response) => {
-  const { theme } = req.params;
+  const { themeId } = req.params;
 
-  await Theme.deleteOne({
-    theme: { $regex: new RegExp(theme, "i") }
-  });
+  const theme = await Theme.findByIdAndDelete(themeId);
 
   res.json({
     ok: true,
-    msg: `Categoría: ${theme} borrada`
+    msg: `Temática: ${theme.theme} borrada`
   });
 }
 

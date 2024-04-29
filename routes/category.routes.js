@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { check, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares');
-const { categoryExists, isValidCategory} = require('../helpers/db-validators');
+const { categoryExists, isValidCategory, isValidUser } = require('../helpers/db-validators');
 const { categoryPost, categoryDelete } = require('../controllers/category.controller');
 
 const router = Router();
@@ -11,17 +11,20 @@ router.post('/', [
   check('category')
     .exists({ values: 'falsy' }).withMessage('La categoría es requerido').bail()
     .custom(categoryExists),
-  check('role')
-    .exists({ values: 'falsy' }).withMessage('El rol es requerido').bail()
-    .equals('ADMIN_ROLE').withMessage('Este rol no puede crear temáticas'),
+  check('id')
+    .exists({ values: 'falsy' }).withMessage('El usuario es requerido').bail()
+    .isMongoId().withMessage('El id no es correcto').bail()
+    .custom(isValidUser),
   validateFields
 ], categoryPost);
 
-router.delete('/:category', [
-  param('category')
+router.delete('/:categoryId', [
+  param('categoryId')
     .custom(isValidCategory),
-  query('role')
-    .equals('ADMIN_ROLE').withMessage('Este rol no puede eliminar categorías'),
+  query('user')
+    .exists({ values: 'falsy' }).withMessage('El usuario es requerido').bail()
+    .isMongoId().withMessage('El id no es correcto').bail()
+    .custom(isValidUser),
   validateFields
 ], categoryDelete)
 

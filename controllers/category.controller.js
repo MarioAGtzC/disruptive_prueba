@@ -10,20 +10,18 @@ const categoryPost = async (req, res = response) => {
 
   res.json({
     ok: true,
-    msg: 'post API Category from controller'
+    msg: `Categoría: ${category} creada`
   });
 }
 
 const categoryDelete = async (req = request, res) => {
-  const { category } = req.params;
+  const { categoryId } = req.params;
 
-  await Category.deleteOne({
-    category: { $regex: new RegExp(category, "i") }
-  });
+  const category = await Category.findByIdAndDelete(categoryId);
 
   res.json({
     ok: true,
-    msg: `Categoría: ${category} borrada`
+    msg: `Categoría: ${category.category} borrada`
   });
 }
 
